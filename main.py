@@ -45,7 +45,9 @@ print("================================================")
 print("         DEV DAY MEMBER MAILS MANAGER")
 print("================================================\n")
 
+# TODO replace with master csv in case of cron jobs
 dataCsvPath = easygui.fileopenbox()
+
 unsentMailsCsvPath = "unsentRecords.csv"
 sentMailsCsvPath = "sentRecords.csv"
 processLogFilePath = "processLogs.log"
