@@ -1,3 +1,4 @@
+from datetime import datetime
 from sendLetterAttachedMail import sendPdfAttachmentMail
 from createLetter import getLetter
 from csvWriter import writeRecordsToCsv, readRecordsFromCsv, readRecordsFromExcel
@@ -37,22 +38,28 @@ whatsApplinks = {
     "Content": "https://chat.whatsapp.com/L8c34hDffAJ9GrchVZwsqt",
     "Design": "https://chat.whatsapp.com/K48dfGNc0cmEq2UZkdNWkd",
     "Marketing": "https://chat.whatsapp.com/FFoddqocOvZ8rJZV7eVwAA",
-    "Media": "https://chat.whatsapp.com/HpXcVqdnK6ALrkEa1XYHa7"
+    "Media": "https://chat.whatsapp.com/HpXcVqdnK6ALrkEa1XYHa7",
 }
 
 print("================================================")
 print("         DEV DAY MEMBER MAILS MANAGER")
 print("================================================\n")
 
-dataCsvPath= easygui.fileopenbox()
+dataCsvPath = easygui.fileopenbox()
 unsentMailsCsvPath = "unsentRecords.csv"
 sentMailsCsvPath = "sentRecords.csv"
+processLogFilePath = "processLogs.log"
+
+# Opening Log File
+processLogFile = open(processLogFilePath, "a")
 
 unsentRecords = readRecordsFromCsv(dataCsvPath)
 sentRecords = readRecordsFromCsv(sentMailsCsvPath)
 
 totalRecords = len(unsentRecords)
 unsentLength = totalRecords
+
+processLogFile.write(f"{datetime.now()} : PROCESS STARTED\n")
 
 try:
 
@@ -67,9 +74,9 @@ try:
             memberData["SELECT POSITION"],
         )
 
-        groupLink= whatsApplinks[memberData["SELECT ON-DAY TEAM"]]
+        groupLink = whatsApplinks[memberData["SELECT ON-DAY TEAM"]]
         htmlContent = getHtmlContent(groupLink)
-        
+
         # sort the data according to if the mail was sent or not
         if (
             sendPdfAttachmentMail(memberData["Email Address"], letter, htmlContent)
@@ -85,9 +92,11 @@ try:
 
 except Exception as ex:
     print("[!] AN ERROR OCCOURED:-")
+    processLogFile.write(f"""{datetime.now()} : EXCEPTION OCCOURED\n\t{ex}\n""")
     print(ex)
 
 finally:
+
     print("[+] Writing data to files before exiting...")
 
     if writeRecordsToCsv(sentRecords, sentMailsCsvPath):
@@ -96,10 +105,15 @@ finally:
         print("   [+] No sent records to write.")
 
     if writeRecordsToCsv(unsentRecords, unsentMailsCsvPath):
-       print("   [+] Unsent records written to file")
+        print("   [+] Unsent records written to file")
     else:
         print("   [+] No unsent records to write.")
 
+    # Logging process end
+    processLogFile.write(f"{datetime.now()} : PROCESS ENDED\n")
+
+    # Closing log file
+    processLogFile.close()
 
 print("\n\n======== OPERATION SUMMARY ========")
 print(f"\nTotal records to send: {totalRecords}")
