@@ -86,9 +86,11 @@ try:
         ):
             unsentRecords.remove(memberData)
             sentRecords.append(memberData)
+            processLogFile.write(f"{datetime.now()} : SUCCESSFULLY SENT TO {memberData["Email Address"]}\n")
             i -= 1
             unsentLength -= 1
-
+        else:
+            processLogFile.write(f"{datetime.now()} : FAILED TO SEND TO {memberData["Email Address"]}\n")
         i += 1
 
 
